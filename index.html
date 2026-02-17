@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDX 5% Ownership Parser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-layer"></div>
+
+  <div class="loading-overlay hidden" id="loading-overlay" aria-live="polite" aria-busy="true">
+    <div class="loading-panel">
+      <div class="loading-spinner"></div>
+      <h2 id="loading-title">Loading parser runtime...</h2>
+      <p id="loading-detail">This can take a moment on first use.</p>
+    </div>
+  </div>
+
+  <main class="app-shell">
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow" id="hero-eyebrow">Indonesia Stock Tools</p>
+        <div class="lang-switch" id="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="id">ID</button>
+        </div>
+      </div>
+      <h1 id="hero-title">IDX 5% Ownership Reader</h1>
+      <p class="subtitle" id="hero-subtitle">Drop a KSEI/OJK 5% PDF and get clean, grouped ownership changes.</p>
+    </header>
+
+    <section class="upload-card" id="upload-area" role="button" tabindex="0" aria-label="Upload a PDF file">
+      <input type="file" id="file-input" accept="application/pdf" hidden>
+      <div class="upload-icon" aria-hidden="true">PDF</div>
+      <h2 id="upload-title">Drag and drop your 5% PDF</h2>
+      <p id="upload-subtitle">or click to choose a file</p>
+    </section>
+
+    <p class="status-line" id="status-line">Ready.</p>
+
+    <section class="summary hidden" id="summary"></section>
+    <section class="results-grid hidden" id="results"></section>
+  </main>
+
+  <template id="summary-template">
+    <article class="summary-card">
+      <span class="label"></span>
+      <span class="value"></span>
+    </article>
+  </template>
+
+  <template id="owner-card-template">
+    <article class="owner-card">
+      <header class="owner-head">
+        <div class="ticker-pill"></div>
+        <div class="owner-meta">
+          <h3 class="owner-name"></h3>
+          <p class="owner-country"></p>
+        </div>
+      </header>
+      <div class="entries"></div>
+      <div class="total-row hidden"></div>
+    </article>
+  </template>
+
+  <template id="entry-row-template">
+    <div class="entry-row">
+      <div class="entry-main">
+        <p class="entry-label entry-label-sek">Sekuritas</p>
+        <p class="entry-sek"></p>
+      </div>
+      <div class="entry-metrics">
+        <p><span class="label-shares-owned">Shares Owned</span><strong class="metric-shares-owned"></strong></p>
+        <p><span class="label-shares-change">Shares Change</span><strong class="metric-shares-change"></strong></p>
+        <p><span class="label-pct-owned">Percentage Owned</span><strong class="metric-pct-owned"></strong></p>
+        <p><span class="label-pct-change">Percentage Change</span><strong class="metric-pct-change"></strong></p>
+      </div>
+    </div>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
