@@ -1,6 +1,6 @@
 # Indonesian Stock Tools Web App
 
-This repository now includes a GitHub Pages web app for parsing IDX/KSEI 5% ownership PDFs directly in the browser.
+This repository consists of automation tools for me to analyize Indonesian stocks. It's also published on GitHub pages for anyone to use. Right now it only has a parser for IDX's 5% Ownership Docuemnt, but I plan to add more things in the future.
 
 ## How it works
 
