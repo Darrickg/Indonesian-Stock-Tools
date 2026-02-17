@@ -151,6 +151,35 @@ body {
   color: var(--muted);
 }
 
+.legal-banner {
+  margin: -0.4rem 0 1rem;
+  padding: 0.72rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #e7d4a9;
+  background: linear-gradient(140deg, rgba(255, 250, 236, 0.95) 0%, rgba(255, 246, 221, 0.95) 100%);
+}
+
+.legal-banner.emphasized {
+  border-color: #d8b86f;
+  box-shadow: 0 6px 18px rgba(110, 78, 18, 0.16);
+}
+
+.legal-banner-title {
+  margin: 0 0 0.18rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6a4b0f;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.legal-banner p {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.4;
+  color: #4f3b12;
+}
+
 .summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -183,6 +212,54 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+.mini-footer {
+  margin-top: 1.25rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid #d5e1d8;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.mini-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.social-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.social-links a {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.social-links a:hover,
+.social-links a:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  border-color: #9fc0ad;
+  box-shadow: 0 6px 16px rgba(18, 30, 23, 0.12);
+}
+
+.social-links img {
+  width: 15px;
+  height: 15px;
+  opacity: 0.84;
 }
 
 .owner-card {
@@ -385,5 +462,10 @@ body {
   .hero-top {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .mini-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

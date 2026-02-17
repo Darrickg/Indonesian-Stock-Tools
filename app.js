@@ -11,6 +11,10 @@ const heroTitle = document.getElementById("hero-title");
 const heroSubtitle = document.getElementById("hero-subtitle");
 const uploadTitle = document.getElementById("upload-title");
 const uploadSubtitle = document.getElementById("upload-subtitle");
+const legalBanner = document.getElementById("legal-banner");
+const disclaimerTitle = document.getElementById("disclaimer-title");
+const aboutText = document.getElementById("about-text");
+const disclaimerText = document.getElementById("disclaimer-text");
 const langSwitch = document.getElementById("lang-switch");
 
 const summaryTemplate = document.getElementById("summary-template");
@@ -26,6 +30,9 @@ const I18N = {
     upload_subtitle: "or click to choose a file",
     upload_aria: "Upload a PDF file",
     lang_switch_aria: "Language",
+    about_text: "Built by Darrick Gunawan",
+    disclaimer_title: "Disclaimer",
+    disclaimer_text: "Information shown may contain errors. If you find any issue, please contact me via the links below.",
 
     status_ready: "Ready. Drop a PDF to start.",
     status_need_pdf: "Please upload a PDF file.",
@@ -71,6 +78,9 @@ const I18N = {
     upload_subtitle: "atau klik untuk memilih file",
     upload_aria: "Unggah file PDF",
     lang_switch_aria: "Bahasa",
+    about_text: "Dibuat oleh Darrick Gunawan",
+    disclaimer_title: "Disclaimer",
+    disclaimer_text: "Informasi yang ditampilkan mungkin tidak akurat. Jika ada kesalahan, silakan hubungi saya melalui tautan di bawah.",
 
     status_ready: "Siap. Tarik file PDF untuk mulai.",
     status_need_pdf: "Silakan unggah file PDF.",
@@ -124,7 +134,7 @@ let loadingState = {
 
 let currentLang = localStorage.getItem("idx_lang");
 if (!currentLang || !I18N[currentLang]) {
-  currentLang = "en";
+  currentLang = "id";
 }
 
 function t(key, vars = {}) {
@@ -236,8 +246,15 @@ function applyStaticTranslations() {
   heroSubtitle.textContent = t("hero_subtitle");
   uploadTitle.textContent = t("upload_title");
   uploadSubtitle.textContent = t("upload_subtitle");
+  disclaimerTitle.textContent = t("disclaimer_title");
+  aboutText.textContent = t("about_text");
+  disclaimerText.textContent = t("disclaimer_text");
   uploadArea.setAttribute("aria-label", t("upload_aria"));
   langSwitch.setAttribute("aria-label", t("lang_switch_aria"));
+}
+
+function setDisclaimerEmphasis(enabled) {
+  legalBanner.classList.toggle("emphasized", Boolean(enabled));
 }
 
 function setLanguage(lang) {
@@ -415,6 +432,7 @@ async function handleFile(file) {
   }
 
   showLoading("loading_preparing_title", "loading_preparing_detail");
+  setDisclaimerEmphasis(false);
   setStatusKey("status_parsing", { file: file.name });
 
   try {
@@ -425,17 +443,20 @@ async function handleFile(file) {
       summaryEl.classList.add("hidden");
       resultsEl.classList.add("hidden");
       setStatusKey("status_no_rows");
+      setDisclaimerEmphasis(true);
       return;
     }
 
     renderSummary(parsed.summary);
     renderResults(parsed.groups);
     setStatusKey("status_done", { file: file.name });
+    setDisclaimerEmphasis(true);
   } catch (err) {
     console.error(err);
     summaryEl.classList.add("hidden");
     resultsEl.classList.add("hidden");
     setStatusKey("status_failed", { error: err.message });
+    setDisclaimerEmphasis(true);
   } finally {
     hideLoading();
   }
@@ -483,4 +504,5 @@ langSwitch.addEventListener("click", (e) => {
 });
 
 setLanguage(currentLang);
+setDisclaimerEmphasis(false);
 setStatusKey("status_ready");
