@@ -5,8 +5,8 @@ This repository consists of automation tools for me to analyize Indonesian stock
 ## How it works
 
 - Users drag and drop a PDF on the page.
-- The site loads Pyodide (Python in WebAssembly).
-- The existing `fivepercent.py` parser is loaded and executed in-browser.
+- The site parses directly in-browser with a JavaScript worker (`parser-worker.js`) and PDF.js.
+- `fivepercent.py` is kept in the repo for future server-side use.
 - Results are rendered as grouped cards (Ticker + Owner + Sekuritas + totals).
 
 No backend is required and uploaded files stay in the browser session.

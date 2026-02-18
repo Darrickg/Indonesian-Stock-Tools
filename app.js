@@ -43,15 +43,15 @@ const I18N = {
     status_failed: "Parsing failed: {error}",
 
     loading_preparing_title: "Preparing parser...",
-    loading_preparing_detail: "Starting worker runtime.",
+    loading_preparing_detail: "Starting JavaScript parser worker.",
     progress_working_title: "Working...",
     progress_working_detail: "",
-    progress_loading_runtime_title: "Loading Python runtime...",
-    progress_loading_runtime_detail: "First load may take 20-40 seconds.",
-    progress_installing_deps_title: "Installing parser dependencies...",
-    progress_installing_deps_detail: "Loading pdfplumber in your browser.",
+    progress_loading_runtime_title: "Loading parser engine...",
+    progress_loading_runtime_detail: "First load may take a moment while PDF.js is cached.",
+    progress_installing_deps_title: "Preparing parser...",
+    progress_installing_deps_detail: "Optimizing parser for this device.",
     progress_loading_parser_title: "Loading parser...",
-    progress_loading_parser_detail: "Preparing fivepercent.py.",
+    progress_loading_parser_detail: "Preparing JavaScript parsing rules.",
     progress_parsing_pdf_title: "Parsing PDF...",
     progress_parsing_pdf_detail: "Analyzing holdings and changes.",
 
@@ -94,15 +94,15 @@ const I18N = {
     status_failed: "Proses gagal: {error}",
 
     loading_preparing_title: "Menyiapkan parser...",
-    loading_preparing_detail: "Memulai runtime worker.",
+    loading_preparing_detail: "Memulai worker parser JavaScript.",
     progress_working_title: "Memproses...",
     progress_working_detail: "",
-    progress_loading_runtime_title: "Memuat runtime Python...",
-    progress_loading_runtime_detail: "Muat pertama bisa memakan 20-40 detik.",
-    progress_installing_deps_title: "Memasang dependensi parser...",
-    progress_installing_deps_detail: "Memuat pdfplumber di browser.",
+    progress_loading_runtime_title: "Memuat mesin parser...",
+    progress_loading_runtime_detail: "Muat pertama bisa memakan waktu saat PDF.js disimpan ke cache.",
+    progress_installing_deps_title: "Menyiapkan parser...",
+    progress_installing_deps_detail: "Mengoptimalkan parser untuk perangkat ini.",
     progress_loading_parser_title: "Memuat parser...",
-    progress_loading_parser_detail: "Menyiapkan fivepercent.py.",
+    progress_loading_parser_detail: "Menyiapkan aturan parsing JavaScript.",
     progress_parsing_pdf_title: "Memproses PDF...",
     progress_parsing_pdf_detail: "Menganalisis kepemilikan dan perubahan.",
 
@@ -316,7 +316,7 @@ function ensureWorker() {
     return parserWorker;
   }
 
-  parserWorker = new Worker("./parser-worker.js");
+  parserWorker = new Worker("./parser-worker.js?v=jsparser-7");
 
   parserWorker.onmessage = (event) => {
     const msg = event.data || {};
