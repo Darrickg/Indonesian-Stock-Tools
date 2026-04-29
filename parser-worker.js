@@ -68,6 +68,27 @@ const DEFAULT_X = {
   change: 766.1,
 };
 
+const COMPACT_X = {
+  no: 55.8,
+  ticker: 59.3,
+  emiten: 67.1,
+  sekuritas: 114.4,
+  owner: 161.6,
+  rekening: 208.9,
+  address1: 256.2,
+  address2: 303.5,
+  country: 352.3,
+  domicile: 363.3,
+  status: 396.1,
+  shares_prev: 407.3,
+  shares_total_prev: 429,
+  pct_prev: 462.6,
+  shares_curr: 470.3,
+  shares_total_curr: 492,
+  pct_curr: 525.6,
+  change: 538.3,
+};
+
 function cleanText(value) {
   if (value === null || value === undefined) {
     return "";
@@ -281,7 +302,25 @@ function looksLikeHeaderContinuation(text) {
   );
 }
 
-function parseHeaderAnchors() {
+function parseHeaderAnchors(lines, start) {
+  const headerItems = [];
+  const end = Math.min(lines.length, start + 3);
+  for (let i = start; i < end; i += 1) {
+    headerItems.push(...(lines[i].items || []));
+  }
+
+  const hasCompactNumericHeader = headerItems.some((item) => {
+    const text = norm(item.text);
+    return (
+      (text.includes("KEPEMILIKAN PER") && item.x < 520) ||
+      (text.includes("PERUBAHAN") && item.x < 650)
+    );
+  });
+
+  if (hasCompactNumericHeader) {
+    return { ...COMPACT_X };
+  }
+
   return { ...DEFAULT_X };
 }
 

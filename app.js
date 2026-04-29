@@ -316,7 +316,7 @@ function ensureWorker() {
     return parserWorker;
   }
 
-  parserWorker = new Worker("./parser-worker.js?v=jsparser-7");
+  parserWorker = new Worker("./parser-worker.js?v=jsparser-8");
 
   parserWorker.onmessage = (event) => {
     const msg = event.data || {};

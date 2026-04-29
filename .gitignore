@@ -1,3 +1,5 @@
 documents/
 __pycache__
 node_modules/
+long-term-memory/
+.codex
