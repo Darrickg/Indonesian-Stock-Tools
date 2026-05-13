@@ -49,6 +49,27 @@ const COMPACT_X = {
   change: 538.3,
 };
 
+const SHIFTED_WIDE_X = {
+  no: 56.9,
+  ticker: 61.1,
+  emiten: 71.8,
+  sekuritas: 136.8,
+  owner: 201.8,
+  rekening: 266.9,
+  address1: 331.9,
+  address2: 397,
+  country: 464.5,
+  domicile: 493.4,
+  status: 524.4,
+  shares_prev: 540.2,
+  shares_total_prev: 568.4,
+  pct_prev: 616.1,
+  shares_curr: 627,
+  shares_total_curr: 655.2,
+  pct_curr: 702.8,
+  change: 720.2,
+};
+
 function cleanText(value) {
   if (value === null || value === undefined) {
     return "";
@@ -135,6 +156,84 @@ function parseIntStrict(raw) {
     return null;
   }
   return sign * parsed;
+}
+
+function parseShareInt(raw) {
+  let s = normalizeNumber(raw);
+  if (!s) {
+    return null;
+  }
+
+  let sign = 1;
+  if (s.startsWith("+")) {
+    s = s.slice(1);
+  } else if (s.startsWith("-")) {
+    sign = -1;
+    s = s.slice(1);
+  }
+
+  const parts = s.split(/[.,]/);
+  if (parts.length > 1) {
+    const last = parts[parts.length - 1];
+    if (last.length > 0 && last.length < 3) {
+      parts[parts.length - 1] = last.padEnd(3, "0");
+    }
+    s = parts.join("");
+  } else {
+    s = s.replace(/[.,]/g, "");
+  }
+
+  if (!/^\d+$/.test(s)) {
+    return null;
+  }
+
+  const parsed = Number(s);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+  return sign * parsed;
+}
+
+function looksLikeClippedSharePrefix(raw, fullValue) {
+  if (fullValue === null || fullValue === undefined || !Number.isFinite(fullValue)) {
+    return false;
+  }
+
+  let s = normalizeNumber(raw);
+  if (!s || s === "-") {
+    return false;
+  }
+
+  let rawSign = 1;
+  if (s.startsWith("+")) {
+    s = s.slice(1);
+  } else if (s.startsWith("-")) {
+    rawSign = -1;
+    s = s.slice(1);
+  }
+
+  if (fullValue !== 0 && rawSign !== Math.sign(fullValue)) {
+    return false;
+  }
+
+  const rawDigits = s.replace(/[.,]/g, "");
+  const fullDigits = String(Math.abs(fullValue));
+  if (!rawDigits || rawDigits.length >= fullDigits.length) {
+    return false;
+  }
+
+  const missing = fullDigits.slice(rawDigits.length);
+  return fullDigits.startsWith(rawDigits) && /^0+$/.test(missing);
+}
+
+function reconcileClippedShare(raw, parsed, candidate) {
+  if (parsed === null || parsed === undefined || candidate === null || candidate === undefined) {
+    return parsed;
+  }
+  if (parsed === candidate) {
+    return parsed;
+  }
+  return looksLikeClippedSharePrefix(raw, candidate) ? candidate : parsed;
 }
 
 function parsePct(raw) {
@@ -281,6 +380,18 @@ function parseHeaderAnchors(lines, start) {
 
   if (hasCompactNumericHeader) {
     return { ...COMPACT_X };
+  }
+
+  const kodeEfekHeader = headerItems.find((item) => norm(item.text).includes("KODE EFEK"));
+  const perubahanHeader = headerItems.find((item) => norm(item.text).includes("PERUBAHAN"));
+  const hasShiftedWideHeader =
+    kodeEfekHeader &&
+    perubahanHeader &&
+    kodeEfekHeader.x > 45 &&
+    perubahanHeader.x > 650;
+
+  if (hasShiftedWideHeader) {
+    return { ...SHIFTED_WIDE_X };
   }
 
   return { ...DEFAULT_X };
@@ -580,10 +691,10 @@ function rowsFromLines(lines, state) {
       const sekuritasRaw = cleanText(cells.sekuritas || "");
 
       const sharesOwnedRaw = cleanText(cells.shares_curr || cells.shares_total_curr || "");
-      let sharesOwned = looksLikeNumericInt(sharesOwnedRaw) ? parseIntStrict(sharesOwnedRaw) : null;
+      let sharesOwned = looksLikeNumericInt(sharesOwnedRaw) ? parseShareInt(sharesOwnedRaw) : null;
 
       const sharesPrevRaw = cleanText(cells.shares_prev || cells.shares_total_prev || "");
-      let sharesPrev = looksLikeNumericInt(sharesPrevRaw) ? parseIntStrict(sharesPrevRaw) : null;
+      let sharesPrev = looksLikeNumericInt(sharesPrevRaw) ? parseShareInt(sharesPrevRaw) : null;
 
       if (sharesOwned === null && sharesPrev !== null && (sharesOwnedRaw === "" || sharesOwnedRaw === "-")) {
         sharesOwned = 0;
@@ -595,10 +706,26 @@ function rowsFromLines(lines, state) {
       let sharesChange = null;
       const changeRaw = cleanText(cells.change || "");
       if (looksLikeNumericInt(changeRaw)) {
-        sharesChange = parseIntStrict(changeRaw);
+        sharesChange = parseShareInt(changeRaw);
       }
-      if (sharesChange === null && sharesPrev !== null && sharesOwned !== null) {
-        sharesChange = sharesOwned - sharesPrev;
+
+      if (sharesPrev !== null && sharesChange !== null && looksLikeNumericInt(sharesOwnedRaw)) {
+        sharesOwned = reconcileClippedShare(sharesOwnedRaw, sharesOwned, sharesPrev + sharesChange);
+      }
+      if (sharesOwned !== null && sharesChange !== null && looksLikeNumericInt(sharesPrevRaw)) {
+        sharesPrev = reconcileClippedShare(sharesPrevRaw, sharesPrev, sharesOwned - sharesChange);
+      }
+
+      const computedSharesChange =
+        sharesPrev !== null && sharesOwned !== null ? sharesOwned - sharesPrev : null;
+      if (computedSharesChange !== null && sharesChange === null) {
+        sharesChange = computedSharesChange;
+      } else if (
+        computedSharesChange !== null &&
+        sharesChange !== computedSharesChange &&
+        looksLikeClippedSharePrefix(changeRaw, computedSharesChange)
+      ) {
+        sharesChange = computedSharesChange;
       }
 
       let pctOwned = null;
